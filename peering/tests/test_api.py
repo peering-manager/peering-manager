@@ -5,6 +5,8 @@ from rest_framework import status
 
 from bgp.enums import RoutingPolicyType
 from bgp.models import Relationship, RoutingPolicy
+from core.enums import ObjectChangeAction
+from core.models import ObjectChange
 from net.models import Connection
 from utils.testing import APITestCase, APIViewTestCases
 
@@ -68,6 +70,12 @@ class AutonomousSystemTest(APIViewTestCases.View):
         )
         response = self.client.post(url, format="json", **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # Verify that the snapshot is done (avoid regression)
+        change = ObjectChange.objects.get(changed_object_id=autonomous_system.pk, action=ObjectChangeAction.UPDATE)
+        self.assertEqual(change.user, self.user)
+        self.assertEqual(change.prechange_data["name"], "Test")
+        self.assertEqual(change.postchange_data["name"], "Guillaume Mazoyer")
 
     def _store_prefixes(self):
         build_prefix_synchroniser().synchronise(

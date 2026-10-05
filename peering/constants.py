@@ -7,6 +7,14 @@ ASN_MAX_2_OCTETS = 2**16 - 1
 TTL_MIN = 1
 TTL_MAX = 2**8 - 1
 
+# AS fields that PeeringDB can set after an AS has been created (e.g. during a sync)
+PEERINGDB_NETWORK_FIELDS = {
+    "name": "name",
+    "irr_as_set": "irr_as_set",
+    "ipv6_max_prefixes": "info_prefixes6",
+    "ipv4_max_prefixes": "info_prefixes4",
+}
+
 # Follows draft-ramseyer-grow-peering-api
 IX_LOCATION_PREFIX = "pdb:ix:"
 FACILITY_LOCATION_PREFIX = "pdb:fac:"

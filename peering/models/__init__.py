@@ -23,6 +23,7 @@ from peering_manager.models import ChangeLoggedModel, JournalingMixin, PrimaryMo
 from peeringdb.functions import get_shared_facilities, get_shared_internet_exchanges
 from peeringdb.models import HiddenPeer, IXLanPrefix, Network, NetworkContact, NetworkIXLan
 
+from ..constants import PEERINGDB_NETWORK_FIELDS
 from ..enums import BGPRole, BGPState, PeeringRequestStatus, PeeringRequestType, RequestedSessionStatus
 from ..fields import ASNField
 from ..functions import (
@@ -339,12 +340,6 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
             return []
 
         diff = []
-        key_map = {
-            "name": "name",
-            "irr_as_set": "irr_as_set",
-            "ipv6_max_prefixes": "info_prefixes6",
-            "ipv4_max_prefixes": "info_prefixes4",
-        }
         label_map = {
             "name": "Name",
             "irr_as_set": "IRR AS-SET",
@@ -352,7 +347,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
             "ipv4_max_prefixes": "IPv4 Max Prefix",
         }
 
-        for local_key, peeringdb_key in key_map.items():
+        for local_key, peeringdb_key in PEERINGDB_NETWORK_FIELDS.items():
             local_value = getattr(self, local_key)
             peeringdb_value = getattr(network, peeringdb_key)
 
@@ -369,9 +364,11 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
 
         return diff
 
-    def synchronise_with_peeringdb(self):
+    def synchronise_with_peeringdb(self) -> bool:
         """
         Synchronises AS properties with those found in PeeringDB.
+
+        The AS is saved only when a value changes.
         """
         if self.is_private:
             return True
@@ -380,14 +377,17 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         if not network:
             return False
 
-        if self.name_peeringdb_sync:
-            self.name = network.name
-        if self.irr_as_set_peeringdb_sync:
-            self.irr_as_set = network.irr_as_set
-        if self.ipv6_max_prefixes_peeringdb_sync:
-            self.ipv6_max_prefixes = network.info_prefixes6
-        if self.ipv4_max_prefixes_peeringdb_sync:
-            self.ipv4_max_prefixes = network.info_prefixes4
+        changes = {
+            field: getattr(network, peeringdb_field)
+            for field, peeringdb_field in PEERINGDB_NETWORK_FIELDS.items()
+            if getattr(self, f"{field}_peeringdb_sync") and getattr(self, field) != getattr(network, peeringdb_field)
+        }
+        if not changes:
+            return True
+
+        self.snapshot()
+        for field, value in changes.items():
+            setattr(self, field, value)
 
         try:
             self.save()
