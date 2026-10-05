@@ -3,6 +3,7 @@ from peeringdb.models import Network, Organization
 PREFIXES6 = '{"prefix_list": [{"prefix": "2001:db8::/32", "exact": true}]}'
 PREFIXES4 = '{"prefix_list": [{"prefix": "203.0.113.0/24", "exact": true}]}'
 AS_LIST = '{"as_list": [65537, 65538, 65539]}'
+AS_LIST_OVERLAP = '{"as_list": [65538, 65540]}'
 
 
 def load_peeringdb_data():
@@ -82,6 +83,8 @@ def mocked_subprocess_popen_as_list(*args, **kwargs):
 
     if "AS-MOCKED" in args[0]:
         return MockResponse(0, AS_LIST.encode(), b"")
+    if "AS-MOCKED-OVERLAP" in args[0]:
+        return MockResponse(0, AS_LIST_OVERLAP.encode(), b"")
     if "AS-ERROR" in args[0]:
         return MockResponse(1, b"", b"Exit with error")
 

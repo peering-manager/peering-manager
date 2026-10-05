@@ -423,8 +423,9 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
 
     def retrieve_irr_as_set_as_list(self) -> list[int]:
         """
-        Returns a list of ASN that are included in this AS' AS-SETs. If no AS-SET is
-        defined, the list will be empty.
+        Returns a sorted list of ASN that are included in this AS' AS-SETs. If no
+        AS-SET is defined, the list will be empty. An ASN that several AS-SETs include
+        appears only once.
 
         This function will actually retrieve data from IRR online sources. It is
         expected to be slow due to network operations and depending on the size of the
@@ -433,9 +434,9 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         if not self.irr_as_set or not self.retrieve_as_list:
             return []
 
-        as_list: list[int] = []
+        as_list: set[int] = set()
         for source, as_set in parse_irr_as_set(asn=self.asn, irr_as_set=self.irr_as_set):
-            as_list.extend(
+            as_list.update(
                 call_irr_as_set_as_list_resolver(
                     first_as=self.asn,
                     as_set=as_set,
@@ -444,7 +445,7 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
                 )
             )
 
-        return as_list
+        return sorted(as_list)
 
     def get_irr_as_set_as_list(self) -> list[int]:
         """

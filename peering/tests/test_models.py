@@ -91,6 +91,14 @@ class AutonomousSystemTest(TestCase):
             self.autonomous_system.prefixes,
         )
 
+    @patch("peering.functions.subprocess.Popen", side_effect=mocked_subprocess_popen_as_list)
+    def test_retrieve_irr_as_set_as_list(self, *_):
+        self.autonomous_system.irr_as_set = "AS-MOCKED AS-MOCKED-OVERLAP"
+        self.assertEqual(self.autonomous_system.retrieve_irr_as_set_as_list(), [65537, 65538, 65539, 65540])
+
+        self.autonomous_system.retrieve_as_list = False
+        self.assertEqual(self.autonomous_system.retrieve_irr_as_set_as_list(), [])
+
     def test_peeringdb_network(self):
         self.assertIsNone(self.autonomous_system.peeringdb_network)
 

@@ -56,10 +56,7 @@ class Command(BaseCommand):
 
         as_list = autonomous_system.retrieve_irr_as_set_as_list()
         if not quiet:
-            self.stdout.write(
-                f"    {len(autonomous_system.as_list):>6} ASNs in list",
-                self.style.SUCCESS,
-            )
+            self.stdout.write(f"    {len(as_list):>6} ASNs in list", self.style.SUCCESS)
 
         return as_list
 
