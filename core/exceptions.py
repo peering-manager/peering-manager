@@ -22,8 +22,14 @@ def exception_handler(rq_job, exc_type, exc_value, trace):
         job = Job.objects.get(job_id=rq_job.id)
     except Job.DoesNotExist:
         logger.error(f"could not find job id {rq_job.id}, cannot log exception")
+        return
 
-    job.set_output("".join(traceback.format_exception(exc_type, exc_value, trace)))
+    output = (
+        [*trace.format(), *traceback.format_exception_only(exc_type, exc_value)]
+        if isinstance(trace, traceback.StackSummary)
+        else traceback.format_exception(exc_type, exc_value, trace)
+    )
+    job.set_output("".join(output))
     job.mark_errored("An exception occurred, see output for more details.", logger=logger)
 
 
