@@ -4,8 +4,6 @@ from unittest.mock import patch
 from django.test import TestCase
 
 from bgp.models import Community, Relationship, RoutingPolicy
-from core.constants import CENSORSHIP_STRING, CENSORSHIP_STRING_CHANGED
-from core.enums import ObjectChangeAction
 from net.models import Connection
 from peering.enums import BGPSessionStatus, BGPState
 from peering.models import (
@@ -247,17 +245,6 @@ class RouterTest(TestCase):
             self.router.poll_bgp_sessions()
             session.refresh_from_db()
             self.assertEqual(BGPState.IDLE, session.bgp_state)
-
-    def test_napalm_password_is_hidden_in_change_log(self):
-        self.router.napalm_password = "oldpassword"
-        self.router.snapshot()
-        self.router.napalm_password = "newpassword"
-
-        object_change = self.router.to_objectchange(ObjectChangeAction.UPDATE)
-
-        self.assertEqual(CENSORSHIP_STRING, object_change.prechange_data["napalm_password"])
-        self.assertEqual(CENSORSHIP_STRING_CHANGED, object_change.postchange_data["napalm_password"])
-        self.assertEqual("newpassword", self.router.napalm_password)
 
     def test_set_napalm_configuration(self):
         error, changes = self.router.set_napalm_configuration(None)

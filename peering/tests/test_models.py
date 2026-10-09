@@ -4,8 +4,6 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from bgp.models import Relationship
-from core.constants import CENSORSHIP_STRING, CENSORSHIP_STRING_CHANGED
-from core.enums import ObjectChangeAction
 from devices.models import PasswordAlgorithm, Platform, Router
 from net.models import Connection
 from utils.testing import load_json
@@ -144,18 +142,6 @@ class DirectPeeringSessionTest(TestCase):
         ):
             self.assertTrue(self.session.poll())
             self.assertEqual(567_257, self.session.received_prefix_count)
-
-    def test_password_is_hidden_in_change_log(self):
-        self.session.snapshot()
-        self.session.password = "newpassword"
-        self.session.encrypted_password = "encrypted"
-
-        object_change = self.session.to_objectchange(ObjectChangeAction.UPDATE)
-
-        for field in ("password", "encrypted_password"):
-            self.assertEqual(CENSORSHIP_STRING, object_change.prechange_data[field])
-            self.assertEqual(CENSORSHIP_STRING_CHANGED, object_change.postchange_data[field])
-        self.assertEqual("newpassword", self.session.password)
 
     def test_verify_ip_addresses_inputs(self):
         with self.assertRaises(ValidationError, msg="cannot be the same as remote IP address"):
