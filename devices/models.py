@@ -149,6 +149,7 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
     napalm_password = models.CharField(blank=True, null=True, max_length=256)
     napalm_timeout = models.PositiveIntegerField(blank=True, default=0)
     napalm_args = models.JSONField(blank=True, null=True)
+    changelog_censored_fields = ["napalm_password"]
 
     logger = logging.getLogger("peering.manager.napalm")
 
