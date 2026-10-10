@@ -539,6 +539,11 @@ class Router(JobsMixin, PushedDataMixin, PrimaryModel):
                     else:
                         self.logger.debug(f"discarding configuration on {self.hostname}")
                         device.discard_config()
+            except napalm.base.exceptions.LockError as e:
+                # Another session holds uncommitted changes, discarding would erase them
+                changes = None
+                error = str(e)
+                self.logger.debug(f'unable to lock configuration on {self.hostname} reason "{e}"')
             except Exception as e:
                 try:
                     # Try to restore initial config

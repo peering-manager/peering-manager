@@ -1,7 +1,9 @@
 import ipaddress
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from django.test import TestCase
+from napalm.base import NetworkDriver
+from napalm.base.exceptions import LockError, MergeConfigException
 
 from bgp.models import Community, Relationship, RoutingPolicy
 from net.models import Connection
@@ -256,3 +258,28 @@ class RouterTest(TestCase):
         error, changes = self.router.set_napalm_configuration("")
         self.assertIsNotNone(error)
         self.assertIsNone(changes)
+
+    def _merge_with_failing_load(self, exception):
+        device = MagicMock(spec=NetworkDriver)
+        device.load_merge_candidate.side_effect = exception
+        with (
+            patch.object(Router, "is_usable_for_task", return_value=True),
+            patch.object(Router, "get_napalm_device", return_value=device),
+            patch.object(Router, "open_napalm_device", return_value=True),
+            patch.object(Router, "close_napalm_device", return_value=True),
+        ):
+            error, changes = self.router.set_napalm_configuration("set system host-name test", commit=True)
+        return device, error, changes
+
+    def test_set_napalm_configuration_failed_load(self):
+        device, error, changes = self._merge_with_failing_load(LockError("configuration database modified"))
+        self.assertEqual("configuration database modified", error)
+        self.assertIsNone(changes)
+        device.discard_config.assert_not_called()
+        device.commit_config.assert_not_called()
+
+        device, error, changes = self._merge_with_failing_load(MergeConfigException("syntax error"))
+        self.assertEqual("syntax error", error)
+        self.assertIsNone(changes)
+        device.discard_config.assert_called_once()
+        device.commit_config.assert_not_called()
