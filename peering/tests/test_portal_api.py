@@ -8,6 +8,7 @@ from rest_framework import status
 
 from bgp.models import Relationship
 from net.models import Connection
+from net.enums import ConnectionStatus
 from peeringdb.models import (
     Facility,
     IXLan,
@@ -228,6 +229,29 @@ class PortalLocationViewTest(PortalAPITestMixin, APITestCase):
         response = self.client.get(url, {"asn": 4199999991, "location_type": "carrier"}, **self.header)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    # This test checks that a disabled connection is excluded from the proposals
+    def test_locations_exclude_disabled_connections(self):
+        self.connection.status = ConnectionStatus.DISABLED
+        self.connection.save()
+
+        url = reverse("peering-api:portal:locations")
+        response = self.client.get(
+            url,
+            {"asn": 4199999991, "location_type": "public"},
+            **self.header,
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+        )
+
+        location = next(
+            loc for loc in response.data["locations"]
+            if loc["location"] == "pdb:ix:42"
+        )
+
+        self.assertEqual(location["sessions"], [])
 
 class PortalSessionSubmitTest(PortalAPITestMixin, APITestCase):
     def test_submit_rejects_invalid_payloads(self):
