@@ -8,7 +8,6 @@ from peering_manager.views.generic import (
 )
 from utils.views import ViewTab, register_model_view
 
-from ..enums import RequestedSessionStatus
 from ..filtersets import PeeringRequestFilterSet, RequestedSessionFilterSet
 from ..forms import PeeringRequestFilterForm, PeeringRequestForm
 from ..models import AutonomousSystem, PeeringRequest, RequestedSession
@@ -49,9 +48,6 @@ class PeeringRequestView(ObjectView):
         return {
             "requesting_autonomous_system": requesting_as,
             "requested_sessions": instance.requested_sessions.all(),
-            "pending_sessions": instance.requested_sessions.filter(
-                status=RequestedSessionStatus.PENDING
-            ).select_related("ixp_connection__internet_exchange_point"),
         }
 
 

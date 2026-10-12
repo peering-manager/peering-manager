@@ -1128,6 +1128,12 @@ class PeeringRequest(PrimaryModel):
     def get_status_colour(self):
         return PeeringRequestStatus.colours.get(self.status)
 
+    @property
+    def pending_sessions(self) -> models.QuerySet[RequestedSession]:
+        return self.requested_sessions.filter(status=RequestedSessionStatus.PENDING).select_related(
+            "ixp_connection__internet_exchange_point"
+        )
+
     def get_requesting_network(self) -> Network | None:
         try:
             return Network.objects.get(asn=self.requesting_asn)
