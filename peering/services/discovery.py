@@ -3,8 +3,8 @@ from __future__ import annotations
 import ipaddress
 from typing import TYPE_CHECKING, Protocol
 
-from net.models import Connection
 from net.enums import ConnectionStatus
+from net.models import Connection
 from peeringdb.models import IXLanPrefix, NetworkIXLan
 
 from ..constants import format_facility_location, format_ix_location
@@ -63,8 +63,10 @@ def session_proposals_by_ixp(ixps: Sequence[InternetExchange], peer_network: Net
 
     # One IXP can have several connections, each with a v4 and/or v6 address. Disabled connections are excluded
     connections: dict[int, dict[int, list[tuple[int, str]]]] = {}
-    for ixp_id, connection_id, ipv4, ipv6 in Connection.objects.filter(internet_exchange_point__in=linked).exclude(status=ConnectionStatus.DISABLED).values_list(
-        "internet_exchange_point_id", "id", "ipv4_address", "ipv6_address"
+    for ixp_id, connection_id, ipv4, ipv6 in (
+        Connection.objects.filter(internet_exchange_point__in=linked)
+        .exclude(status=ConnectionStatus.DISABLED)
+        .values_list("internet_exchange_point_id", "id", "ipv4_address", "ipv6_address")
     ):
         by_af = connections.setdefault(ixp_id, {4: [], 6: []})
         if ipv4 is not None:

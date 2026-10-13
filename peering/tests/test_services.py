@@ -4,8 +4,8 @@ from unittest.mock import patch
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from net.models import Connection, PrefixListEntry
 from net.enums import ConnectionStatus
+from net.models import Connection, PrefixListEntry
 from peeringdb.models import (
     Facility,
     IXLan,
@@ -165,6 +165,14 @@ class SessionResolverTest(PeeringServicesTestMixin, TestCase):
                 {"local_ip": "192.0.2.1/24", "location": "pdb:ix:42", "peer_ip": "192.0.2.9"}
             )
 
+        # A disabled connection cannot receive new sessions
+        self.connection.status = ConnectionStatus.DISABLED
+        self.connection.save()
+        with self.assertRaises(ValidationError):
+            PublicSessionResolver().resolve(
+                {"local_ip": "192.0.2.1/24", "location": "pdb:ix:42", "peer_ip": "192.0.2.254"}
+            )
+
 
 class LocationDiscoveryServiceTest(PeeringServicesTestMixin, TestCase):
     def _discover(self, location_type=None):
@@ -230,49 +238,16 @@ class SessionProposalsTest(PeeringServicesTestMixin, TestCase):
         # No matching network falls back to the bare host
         self.assertEqual(_format_ip_with_prefix("192.0.2.1", []), "192.0.2.1")
 
-    # This test checks whether a disabled connection is excluded from the proposals
-    def test_disabled_connection_exclusion(self):
+    def test_disabled_connection_excluded(self):
+        Connection.objects.create(
+            internet_exchange_point=self.ix, ipv4_address="192.0.2.253/24", ipv6_address="2001:db8::fffe/64"
+        )
         self.connection.status = ConnectionStatus.DISABLED
         self.connection.save()
 
-        self.assertEqual(self._proposals(), [])
+        peer_ips = sorted(str(ipaddress.ip_interface(p["peer_ip"]).ip) for p in self._proposals())
+        self.assertEqual(peer_ips, ["192.0.2.253", "2001:db8::fffe"])
 
-    # This test checks whether an enabled connection is included in the proposals
-    def test_enabled_connection_inclusion(self):
-        self.connection.status = ConnectionStatus.ENABLED
-        self.connection.save()
-
-        proposals = self._proposals()
-
-        self.assertEqual(len(proposals), 2)
-        self.assertEqual(
-            {p["address_family"] for p in proposals},
-            {4, 6},
-        )
-
-    # This test checks that a disabled connection is excluded, even when multiple connections are present
-    def test_disabled_connection_exclusion_with_multiple_available_connections(self):
-        enabled_connection = Connection.objects.create(
-            internet_exchange_point=self.ix,
-            status=ConnectionStatus.ENABLED,
-            ipv4_address="192.0.2.253/24",
-            ipv6_address="2001:db8::fffe/64",
-        )
-
-        self.connection.status = ConnectionStatus.DISABLED
-        self.connection.save()
-
-        proposals = self._proposals()
-
-        self.assertEqual(len(proposals), 2)
-
-        self.assertEqual(
-            {
-                str(ipaddress.ip_interface(p["peer_ip"]).ip)
-                for p in proposals
-            },
-            {"192.0.2.253", "2001:db8::fffe"},
-        )
 
 class _RecordingPrefixSource:
     """Test double returning a canned prefix dict without touching bgpq/subprocess."""

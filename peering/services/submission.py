@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
 
+from net.enums import ConnectionStatus
 from net.models import Connection
 from peeringdb.models import Facility, IXLan
 
@@ -118,6 +119,7 @@ class PublicSessionResolver:
             raise ValidationError({"peer_ip": f"Not a valid IP address: {peer_ip!r}."}) from exc
         conn = (
             Connection.objects.filter(internet_exchange_point=ixp)
+            .exclude(status=ConnectionStatus.DISABLED)
             .filter(Q(ipv4_address__host=host) | Q(ipv6_address__host=host))
             .first()
         )
