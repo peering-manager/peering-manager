@@ -18,13 +18,23 @@ from django.utils import timezone
 from netfields import InetAddressField, NetManager
 
 from bgp.models import Relationship
+from devices.enums import DeviceStatus
+from net.enums import ConnectionStatus
 from net.models import Connection
 from peering_manager.models import ChangeLoggedModel, JournalingMixin, PrimaryModel
 from peeringdb.functions import get_shared_facilities, get_shared_internet_exchanges
 from peeringdb.models import HiddenPeer, IXLanPrefix, Network, NetworkContact, NetworkIXLan
 
 from ..constants import PEERINGDB_NETWORK_FIELDS
-from ..enums import BGPRole, BGPState, PeeringRequestStatus, PeeringRequestType, RequestedSessionStatus
+from ..enums import (
+    BGPGroupStatus,
+    BGPRole,
+    BGPSessionStatus,
+    BGPState,
+    PeeringRequestStatus,
+    PeeringRequestType,
+    RequestedSessionStatus,
+)
 from ..fields import ASNField
 from ..functions import (
     call_irr_as_set_as_list_resolver,
@@ -54,6 +64,22 @@ logger = logging.getLogger("peering.manager.peering")
 type IPAddressAnyType = (
     str | ipaddress.IPv4Address | ipaddress.IPv6Address | ipaddress.IPv4Interface | ipaddress.IPv6Interface
 )
+
+SESSION_STATUS_INHERITED_FROM_BGP_GROUP = {
+    BGPGroupStatus.DISABLED: BGPSessionStatus.DISABLED,
+    BGPGroupStatus.MAINTENANCE: BGPSessionStatus.MAINTENANCE,
+}
+SESSION_STATUS_INHERITED_FROM_CONNECTION = {
+    ConnectionStatus.DISABLED: BGPSessionStatus.DISABLED,
+    ConnectionStatus.PRE_MAINTENANCE: BGPSessionStatus.PRE_MAINTENANCE,
+    ConnectionStatus.MAINTENANCE: BGPSessionStatus.MAINTENANCE,
+    ConnectionStatus.POST_MAINTENANCE: BGPSessionStatus.POST_MAINTENANCE,
+}
+SESSION_STATUS_INHERITED_FROM_ROUTER = {
+    DeviceStatus.PRE_MAINTENANCE: BGPSessionStatus.PRE_MAINTENANCE,
+    DeviceStatus.MAINTENANCE: BGPSessionStatus.MAINTENANCE,
+    DeviceStatus.POST_MAINTENANCE: BGPSessionStatus.POST_MAINTENANCE,
+}
 
 
 class AutonomousSystemManager(models.Manager):
@@ -602,6 +628,20 @@ class DirectPeeringSession(BGPSession):
     def __str__(self) -> str:
         return f"{self.relationship} - AS{self.autonomous_system.asn} - IP {self.ip_address}"
 
+    @property
+    def inherited_status(self) -> str:
+        """
+        Returns the status of the session, inherited from its BGP group first and from its router second.
+
+        A disabled session keeps its own status, as it is more specific than an inherited one.
+        """
+        if self.status != BGPSessionStatus.DISABLED:
+            if self.bgp_group and (status := SESSION_STATUS_INHERITED_FROM_BGP_GROUP.get(self.bgp_group.status)):
+                return status
+            if self.router and (status := SESSION_STATUS_INHERITED_FROM_ROUTER.get(self.router.status)):
+                return status
+        return self.status
+
     def clean(self):
         super().clean()
 
@@ -976,6 +1016,22 @@ class InternetExchangePeeringSession(BGPSession):
         is `(ixp_connection, ip_address)`.
         """
         return cls.objects.filter(ixp_connection=ixp_connection, ip_address=ip_address).exists()
+
+    @property
+    def inherited_status(self) -> str:
+        """
+        Returns the status of the session, inherited from its connection, which itself inherits from its IXP and its
+        router.
+
+        A disabled session keeps its own status, as it is more specific than an inherited one.
+        """
+        if (
+            self.status != BGPSessionStatus.DISABLED
+            and self.ixp_connection
+            and (status := SESSION_STATUS_INHERITED_FROM_CONNECTION.get(self.ixp_connection.inherited_status))
+        ):
+            return status
+        return self.status
 
     @property
     def exists_in_peeringdb(self):

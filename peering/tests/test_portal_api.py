@@ -7,6 +7,7 @@ from drf_spectacular.generators import SchemaGenerator
 from rest_framework import status
 
 from bgp.models import Relationship
+from net.enums import ConnectionStatus
 from net.models import Connection
 from peeringdb.models import (
     Facility,
@@ -167,6 +168,12 @@ class PortalLocationViewTest(PortalAPITestMixin, APITestCase):
         self.assertEqual(loc["location"], "pdb:ix:42")
         self.assertEqual(loc["peering_type"], "public")
         self.assertGreaterEqual(len(loc["sessions"]), 1)
+
+        # An IXP without any enabled connection is not listed
+        self.connection.status = ConnectionStatus.DISABLED
+        self.connection.save()
+        response = self.client.get(url, {"asn": 4199999991}, **self.header)
+        self.assertNotIn("pdb:ix:42", {loc["location"] for loc in response.data["locations"]})
 
     def _add_second_shared_ixp(self):
         ixlan = IXLan.objects.create(id=43, ix=self.pdb_ix, name="Test IX LAN 2")

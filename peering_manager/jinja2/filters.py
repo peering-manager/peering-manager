@@ -12,11 +12,8 @@ from django.db.models.query import QuerySet
 from bgp.enums import CommunityType
 from devices.crypto.arista import MAGIC as ARISTA_TYPE7_MAGIC
 from devices.crypto.cisco import MAGIC as CISCO_TYPE7_MAGIC
-from devices.enums import DeviceStatus
 from devices.models import Router
-from net.enums import ConnectionStatus
 from net.models import Connection
-from peering.enums import BGPGroupStatus, BGPSessionStatus
 from peering.functions import parse_irr_as_set
 from peering.models import (
     AutonomousSystem,
@@ -147,75 +144,14 @@ def mac(value, format=""):
 
 def inherited_status(value):
     """
-    Returns the status of an object taking into account the status of its parent.
+    Returns the status of an object taking into account the status of its parents.
 
-    If the status of the object is equivalent to a disabled one, the status of the
-    parent will not be resolved as this kind of status is considered more specific.
-
-    In case of connections, both IXP's and router's statuses will be checked (IXP's
-    first).
-
-    In case of direct peering sessions, both group's and router's statuses will be
-    checked (group's first).
-
-    In case of IXP peering sessions, connection's status will be checked but that will
-    trigger a recursive check for it which means it'll take into account the IXP or
-    router status.
+    Connections and BGP sessions inherit a status, any other object returns its own status.
     """
     if not hasattr(value, "status"):
         raise ValueError("value has no status property")
 
-    if type(value) is Connection and value.status != ConnectionStatus.DISABLED:
-        if value.internet_exchange_point:
-            # Disabled on IXP probably means the same for connections
-            if value.internet_exchange_point.status == BGPGroupStatus.DISABLED:
-                return ConnectionStatus.DISABLED
-            # Maintenance on IXP probably means the same for connections
-            if value.internet_exchange_point.status == BGPGroupStatus.PRE_MAINTENANCE:
-                return ConnectionStatus.PRE_MAINTENANCE
-            if value.internet_exchange_point.status == BGPGroupStatus.MAINTENANCE:
-                return ConnectionStatus.MAINTENANCE
-            if value.internet_exchange_point.status == BGPGroupStatus.POST_MAINTENANCE:
-                return ConnectionStatus.POST_MAINTENANCE
-        if value.router:
-            # Maintenance on a router probably means the same for connections
-            if value.router.status == DeviceStatus.PRE_MAINTENANCE:
-                return ConnectionStatus.PRE_MAINTENANCE
-            if value.router.status == DeviceStatus.MAINTENANCE:
-                return ConnectionStatus.MAINTENANCE
-            if value.router.status == DeviceStatus.POST_MAINTENANCE:
-                return ConnectionStatus.POST_MAINTENANCE
-
-    if type(value) is DirectPeeringSession and value.status != BGPSessionStatus.DISABLED:
-        if value.bgp_group:
-            # Disabled group probably means sessions should be teared down
-            if value.bgp_group.status == BGPGroupStatus.DISABLED:
-                return BGPSessionStatus.DISABLED
-            # Maintenance group probably means sessions should be less preferred
-            if value.bgp_group.status == BGPGroupStatus.MAINTENANCE:
-                return BGPSessionStatus.MAINTENANCE
-        if value.router:
-            # Maintenance on a router probably means sessions should be less preferred
-            if value.router.status == DeviceStatus.PRE_MAINTENANCE:
-                return BGPSessionStatus.PRE_MAINTENANCE
-            if value.router.status == DeviceStatus.MAINTENANCE:
-                return BGPSessionStatus.MAINTENANCE
-            if value.router.status == DeviceStatus.POST_MAINTENANCE:
-                return BGPSessionStatus.POST_MAINTENANCE
-
-    if type(value) is InternetExchangePeeringSession and value.status != BGPSessionStatus.DISABLED:
-        # Disabled connection probably means sessions should be teared down
-        if inherited_status(value.ixp_connection) == ConnectionStatus.DISABLED:
-            return BGPSessionStatus.DISABLED
-        # Maintenance connection probably means sessions should be less preferred
-        if inherited_status(value.ixp_connection) == ConnectionStatus.PRE_MAINTENANCE:
-            return BGPSessionStatus.PRE_MAINTENANCE
-        if inherited_status(value.ixp_connection) == ConnectionStatus.MAINTENANCE:
-            return BGPSessionStatus.MAINTENANCE
-        if inherited_status(value.ixp_connection) == ConnectionStatus.POST_MAINTENANCE:
-            return BGPSessionStatus.POST_MAINTENANCE
-
-    return value.status
+    return getattr(value, "inherited_status", value.status)
 
 
 def max_prefix(value):

@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 from django.db import models
 from netfields import InetAddressField, MACAddressField, NetManager
 
+from devices.enums import DeviceStatus
+from peering.enums import BGPGroupStatus
 from peering_manager.models import PrimaryModel
 from peeringdb.models import NetworkIXLan
 from utils.validators import AddressFamilyValidator, MACAddressValidator
@@ -19,6 +21,18 @@ if TYPE_CHECKING:
 logger = logging.getLogger("peering.manager.net")
 
 __all__ = ("Connection",)
+
+STATUS_INHERITED_FROM_IXP = {
+    BGPGroupStatus.DISABLED: ConnectionStatus.DISABLED,
+    BGPGroupStatus.PRE_MAINTENANCE: ConnectionStatus.PRE_MAINTENANCE,
+    BGPGroupStatus.MAINTENANCE: ConnectionStatus.MAINTENANCE,
+    BGPGroupStatus.POST_MAINTENANCE: ConnectionStatus.POST_MAINTENANCE,
+}
+STATUS_INHERITED_FROM_ROUTER = {
+    DeviceStatus.PRE_MAINTENANCE: ConnectionStatus.PRE_MAINTENANCE,
+    DeviceStatus.MAINTENANCE: ConnectionStatus.MAINTENANCE,
+    DeviceStatus.POST_MAINTENANCE: ConnectionStatus.POST_MAINTENANCE,
+}
 
 
 class Connection(PrimaryModel):
@@ -66,6 +80,22 @@ class Connection(PrimaryModel):
         Tells if the PeeringDB object for this connection still exists.
         """
         return self.peeringdb_netixlan is not None
+
+    @property
+    def inherited_status(self) -> str:
+        """
+        Returns the status of the connection, inherited from its IXP first and from its router second.
+
+        A disabled connection keeps its own status, as it is more specific than an inherited one.
+        """
+        if self.status != ConnectionStatus.DISABLED:
+            if self.internet_exchange_point and (
+                status := STATUS_INHERITED_FROM_IXP.get(self.internet_exchange_point.status)
+            ):
+                return status
+            if self.router and (status := STATUS_INHERITED_FROM_ROUTER.get(self.router.status)):
+                return status
+        return self.status
 
     def __str__(self) -> str:
         s = ""

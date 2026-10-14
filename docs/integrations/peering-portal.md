@@ -225,6 +225,10 @@ same IXLan, so `sessions` is the cartesian product of those two axes per
 address family: one row per pair. Rows are emitted only when at least one
 operator connection exists for the address family.
 
+A disabled operator connection gives no rows, and neither does a connection
+on a disabled IXP. An IXP without any other connection is not listed, and a
+peering request cannot target its connections.
+
 `local_ip` values come from PeeringDB host records, returned with the
 matching IXLan prefix length appended (for example `192.0.2.1/24`) so they
 are directly usable as BGP session IP fields. `peer_ip` is the operator IP

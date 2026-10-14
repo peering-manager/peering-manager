@@ -4,6 +4,7 @@ from unittest.mock import patch
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
+from net.enums import ConnectionStatus
 from net.models import Connection, PrefixListEntry
 from peeringdb.models import (
     Facility,
@@ -16,7 +17,7 @@ from peeringdb.models import (
 )
 from peeringdb.models import InternetExchange as PeeringDBIX
 
-from ..enums import PeeringRequestStatus, PeeringRequestType
+from ..enums import BGPGroupStatus, PeeringRequestStatus, PeeringRequestType
 from ..functions import UnresolvableIRRObjectError
 from ..models import (
     AutonomousSystem,
@@ -164,6 +165,19 @@ class SessionResolverTest(PeeringServicesTestMixin, TestCase):
                 {"local_ip": "192.0.2.1/24", "location": "pdb:ix:42", "peer_ip": "192.0.2.9"}
             )
 
+        # A connection cannot receive new sessions when it is disabled, or when its IXP is disabled
+        session = {"local_ip": "192.0.2.1/24", "location": "pdb:ix:42", "peer_ip": "192.0.2.254"}
+        self.connection.status = ConnectionStatus.DISABLED
+        self.connection.save()
+        with self.assertRaises(ValidationError):
+            PublicSessionResolver().resolve(session)
+        self.connection.status = ConnectionStatus.ENABLED
+        self.connection.save()
+        self.ix.status = BGPGroupStatus.DISABLED
+        self.ix.save()
+        with self.assertRaises(ValidationError):
+            PublicSessionResolver().resolve(session)
+
 
 class LocationDiscoveryServiceTest(PeeringServicesTestMixin, TestCase):
     def _discover(self, location_type=None):
@@ -228,6 +242,25 @@ class SessionProposalsTest(PeeringServicesTestMixin, TestCase):
         self.assertEqual(_format_ip_with_prefix("192.0.2.1", networks), "192.0.2.1/24")
         # No matching network falls back to the bare host
         self.assertEqual(_format_ip_with_prefix("192.0.2.1", []), "192.0.2.1")
+
+    def test_disabled_connections_and_ixps_excluded(self):
+        other = Connection.objects.create(
+            internet_exchange_point=self.ix, ipv4_address="192.0.2.253/24", ipv6_address="2001:db8::fffe/64"
+        )
+        self.connection.status = ConnectionStatus.DISABLED
+        self.connection.save()
+
+        peer_ips = sorted(str(ipaddress.ip_interface(p["peer_ip"]).ip) for p in self._proposals())
+        self.assertEqual(peer_ips, ["192.0.2.253", "2001:db8::fffe"])
+
+        # An IXP is left out when none of its connections is enabled, or when it is disabled itself
+        other.status = ConnectionStatus.DISABLED
+        other.save()
+        self.assertEqual(session_proposals_by_ixp([self.ix], self.peer_network), {})
+        Connection.objects.update(status=ConnectionStatus.ENABLED)
+        self.ix.status = BGPGroupStatus.DISABLED
+        self.ix.save()
+        self.assertEqual(session_proposals_by_ixp([self.ix], self.peer_network), {})
 
 
 class _RecordingPrefixSource:

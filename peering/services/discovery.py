@@ -3,6 +3,7 @@ from __future__ import annotations
 import ipaddress
 from typing import TYPE_CHECKING, Protocol
 
+from net.enums import ConnectionStatus
 from net.models import Connection
 from peeringdb.models import IXLanPrefix, NetworkIXLan
 
@@ -48,10 +49,9 @@ def session_proposals_by_ixp(ixps: Sequence[InternetExchange], peer_network: Net
     * `address_family`: 4 or 6.
     * `existing`: whether an `InternetExchangePeeringSession` already uses this `(connection, peer_ip)` pair.
 
-    Rows are skipped when no connection exists for the address family. An IXP not linked to a PeeringDB record gets
-    an empty list.
+    Rows are skipped when no connection exists for the address family. A connection with a disabled inherited status
+    is ignored, and an IXP left without any connection is not in the result, as an IXP not linked to a PeeringDB record.
     """
-    ixps = list(ixps)
     linked = [ixp for ixp in ixps if ixp.peeringdb_ixlan_id]
     ixlan_ids = {ixp.peeringdb_ixlan_id for ixp in linked}
 
@@ -61,14 +61,16 @@ def session_proposals_by_ixp(ixps: Sequence[InternetExchange], peer_network: Net
 
     # One IXP can have several connections, each with a v4 and/or v6 address
     connections: dict[int, dict[int, list[tuple[int, str]]]] = {}
-    for ixp_id, connection_id, ipv4, ipv6 in Connection.objects.filter(internet_exchange_point__in=linked).values_list(
-        "internet_exchange_point_id", "id", "ipv4_address", "ipv6_address"
+    for connection in Connection.objects.filter(internet_exchange_point__in=linked).select_related(
+        "internet_exchange_point", "router"
     ):
-        by_af = connections.setdefault(ixp_id, {4: [], 6: []})
-        if ipv4 is not None:
-            by_af[4].append((connection_id, str(ipv4)))
-        if ipv6 is not None:
-            by_af[6].append((connection_id, str(ipv6)))
+        if connection.inherited_status == ConnectionStatus.DISABLED:
+            continue
+        by_af = connections.setdefault(connection.internet_exchange_point_id, {4: [], 6: []})
+        if connection.ipv4_address is not None:
+            by_af[4].append((connection.pk, str(connection.ipv4_address)))
+        if connection.ipv6_address is not None:
+            by_af[6].append((connection.pk, str(connection.ipv6_address)))
 
     # IXLan prefixes used to attach the right netmask to PeeringDB IPs, which are stored bare on netixlan
     ixlan_networks: dict[int, dict[int, list]] = {}
@@ -83,10 +85,12 @@ def session_proposals_by_ixp(ixps: Sequence[InternetExchange], peer_network: Net
         ).values_list("ixp_connection_id", "ip_address")
     }
 
-    proposals: dict[int, list[dict]] = {ixp.pk: [] for ixp in ixps}
+    proposals: dict[int, list[dict]] = {}
     for ixp in linked:
-        entries = proposals[ixp.pk]
-        ixp_connections = connections.get(ixp.pk, {})
+        ixp_connections = connections.get(ixp.pk)
+        if ixp_connections is None:
+            continue
+        entries = proposals[ixp.pk] = []
         networks = ixlan_networks.get(ixp.peeringdb_ixlan_id, {})
         for netixlan in netixlans.get(ixp.peeringdb_ixlan_id, []):
             for ip, af in ((netixlan.ipaddr4, 4), (netixlan.ipaddr6, 6)):
@@ -132,6 +136,7 @@ class PublicLocationProvider:
                 "sessions": proposals[ixp.pk],
             }
             for ixp in ixps
+            if ixp.pk in proposals
         ]
 
 

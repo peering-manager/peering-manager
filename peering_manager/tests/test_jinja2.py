@@ -16,6 +16,7 @@ from net.models import Connection
 from peering.enums import BGPGroupStatus, BGPSessionStatus
 from peering.models import (
     AutonomousSystem,
+    BGPGroup,
     DirectPeeringSession,
     InternetExchange,
     InternetExchangePeeringSession,
@@ -257,6 +258,11 @@ class Jinja2FilterTestCase(TestCase):
             FILTER_DICT["inherited_status"](self.ixp_connection),
         )
         self.assertEqual(BGPSessionStatus.MAINTENANCE, FILTER_DICT["inherited_status"](self.session6))
+        # Inherit from BGP group first, then from router
+        direct_session = DirectPeeringSession(bgp_group=BGPGroup(status=BGPGroupStatus.DISABLED), router=self.router)
+        self.assertEqual(BGPSessionStatus.DISABLED, FILTER_DICT["inherited_status"](direct_session))
+        direct_session.bgp_group = None
+        self.assertEqual(BGPSessionStatus.MAINTENANCE, FILTER_DICT["inherited_status"](direct_session))
 
     def test_max_prefix(self):
         self.assertEqual(100, FILTER_DICT["max_prefix"](self.session6))
