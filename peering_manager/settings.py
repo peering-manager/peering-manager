@@ -75,6 +75,7 @@ CACHE_BGP_DETAIL_TIMEOUT = getattr(configuration, "CACHE_BGP_DETAIL_TIMEOUT", 90
 CACHE_IXAPI_TIMEOUT = getattr(configuration, "CACHE_IXAPI_TIMEOUT", 900)
 CACHE_PREFIX_LIST_TIMEOUT = getattr(configuration, "CACHE_PREFIX_LIST_TIMEOUT", 3600)
 CHANGELOG_RETENTION = getattr(configuration, "CHANGELOG_RETENTION", 90)
+CHANGELOG_SYSTEM_CHANGES = getattr(configuration, "CHANGELOG_SYSTEM_CHANGES", False)
 JOB_RETENTION = getattr(configuration, "JOB_RETENTION", 90)
 LOGIN_PERSISTENCE = getattr(configuration, "LOGIN_PERSISTENCE", False)
 LOGIN_REQUIRED = getattr(configuration, "LOGIN_REQUIRED", False)

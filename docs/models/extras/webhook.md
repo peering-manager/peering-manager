@@ -44,7 +44,8 @@ The following data is available as context for Jinja2 templates:
 * `model` - The NetBox model which triggered the change.
 * `timestamp` - The time at which the event occurred (in
   [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format).
-* `username` - The name of the user account associated with the change.
+* `username` - The name of the user account associated with the change, or
+  `system` for a change made by a system job or a command.
 * `request_id` - The unique request ID. This may be used to correlate multiple
   changes associated with a single request.
 * `data` - A detailed representation of the object in its current state. This

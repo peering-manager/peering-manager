@@ -6,6 +6,7 @@ from django_prometheus.models import model_deletes, model_inserts, model_updates
 from extras.webhooks import enqueue_object, get_snapshots, serialize_for_webhook
 from peering_manager.context import current_request, webhooks_queue
 
+from .constants import SYSTEM_USER_NAME
 from .enums import ObjectChangeAction
 from .models import ObjectChange
 
@@ -13,6 +14,15 @@ __all__ = ("post_synchronisation", "pre_synchronisation")
 
 post_synchronisation = Signal()
 pre_synchronisation = Signal()
+
+
+def get_user_name(request) -> str:
+    """
+    Returns the name of the author of a change. A `SystemRequest` has no user, its changes belong to the system.
+    """
+    if request.user is None:
+        return SYSTEM_USER_NAME
+    return request.user.username
 
 
 def is_same_object(instance, webhook_data, request_id):
@@ -63,6 +73,7 @@ def handle_changed_object(sender, instance, **kwargs):
         prev_change.save()
     elif objectchange.has_changes:
         objectchange.user = request.user
+        objectchange.user_name = get_user_name(request)
         objectchange.request_id = request.id
         objectchange.save()
 
@@ -73,7 +84,7 @@ def handle_changed_object(sender, instance, **kwargs):
         queue[-1]["data"] = serialize_for_webhook(instance)
         queue[-1]["snapshots"]["postchange"] = get_snapshots(instance, action)["postchange"]
     else:
-        enqueue_object(queue, instance, request.user, request.id, action)
+        enqueue_object(queue, instance, get_user_name(request), request.id, action)
     webhooks_queue.set(queue)
 
     # Increment metric counters
@@ -100,12 +111,13 @@ def handle_deleted_object(sender, instance, **kwargs):
     # Record an object change
     change = instance.to_objectchange(ObjectChangeAction.DELETE)
     change.user = request.user
+    change.user_name = get_user_name(request)
     change.request_id = request.id
     change.save()
 
     # Enqueue webhooks
     queue = webhooks_queue.get()
-    enqueue_object(queue, instance, request.user, request.id, ObjectChangeAction.DELETE)
+    enqueue_object(queue, instance, get_user_name(request), request.id, ObjectChangeAction.DELETE)
     webhooks_queue.set(queue)
 
     # Increment metric counters

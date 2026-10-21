@@ -82,6 +82,11 @@ objects. Object properties will be recorded so they can be reviewed later,
 timestamp and author are also kept for helping people who did what and when,
 therefore allowing to understand issues that might have happen.
 
+When [`CHANGELOG_SYSTEM_CHANGES`](configuration/miscellaneous.md#changelog_system_changes)
+is enabled, a system job, such as the PeeringDB synchronisation, records its
+changes with `system` as the author. The `peeringdb_sync` command does the
+same.
+
 The same kind of idea is applied to background jobs as well. Peering Manager
 makes an extensive use of jobs that are run asynchronously to perform tasks
 which may need several seconds or minutes to complete. You can still navigate

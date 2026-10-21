@@ -55,6 +55,18 @@ deletions). Set this to `0` to retain changes in the database indefinitely.
 
 ---
 
+## CHANGELOG_SYSTEM_CHANGES
+
+Default: `False`
+
+Set this to `True` to record the changes that a system job, such as the
+PeeringDB synchronisation, or the `peeringdb_sync` command makes. The change
+log records these changes with `system` as the author, and they trigger the
+webhooks configured for them. When this setting is `False`, these changes are
+not logged and do not trigger webhooks.
+
+---
+
 ## JOB_RETENTION
 
 !!! note

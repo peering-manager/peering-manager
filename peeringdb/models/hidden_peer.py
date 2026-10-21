@@ -1,5 +1,3 @@
-import contextlib
-
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -75,18 +73,18 @@ class HiddenPeer(ChangeLoggedModel):
         super().save(*args, **kwargs)
 
     def link_to_peeringdb(self) -> bool:
-        changed_fields: list[str] = []
+        found: dict[str, Network | IXLan | None] = {}
 
         if not self.peeringdb_network:
-            with contextlib.suppress(Network.DoesNotExist):
-                self.peeringdb_network = Network.objects.get(pk=self.peeringdb_network_id_copy)
-                changed_fields.append("peeringdb_network")
+            found["peeringdb_network"] = Network.objects.filter(pk=self.peeringdb_network_id_copy).first()
         if not self.peeringdb_ixlan:
-            with contextlib.suppress(IXLan.DoesNotExist):
-                self.peeringdb_ixlan = IXLan.objects.get(pk=self.peeringdb_ixlan_id_copy)
-                changed_fields.append("peeringdb_ixlan")
+            found["peeringdb_ixlan"] = IXLan.objects.filter(pk=self.peeringdb_ixlan_id_copy).first()
 
-        if changed_fields:
-            self.save(update_fields=changed_fields)
+        changes = {field: value for field, value in found.items() if value}
+        if changes:
+            self.snapshot()
+            for field, value in changes.items():
+                setattr(self, field, value)
+            self.save(update_fields=list(changes))
 
         return self.peeringdb_network and self.peeringdb_ixlan

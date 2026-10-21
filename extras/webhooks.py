@@ -51,7 +51,7 @@ def generate_signature(request_body, secret):
     return hmac_prep.hexdigest()
 
 
-def enqueue_object(queue, instance, user, request_id, action):
+def enqueue_object(queue, instance, username, request_id, action):
     """
     Enqueues a serialized representation of a created/updated/deleted object for the
     processing of webhooks once the request has completed.
@@ -63,7 +63,7 @@ def enqueue_object(queue, instance, user, request_id, action):
             "event": action,
             "data": serialize_for_webhook(instance),
             "snapshots": get_snapshots(instance, action),
-            "username": user.username,
+            "username": username,
             "request_id": request_id,
         }
     )

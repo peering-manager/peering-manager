@@ -16,6 +16,7 @@ from django.utils.functional import classproperty
 from django_pg_utils.locks import advisory_lock
 from rq.timeouts import JobTimeoutException
 
+from core.context_managers import system_change_logging
 from core.enums import JobStatus, LogLevel
 from core.exceptions import JobFailedError
 from core.models import Job
@@ -26,6 +27,7 @@ from .registry import SYSTEM_JOBS_KEY, registry
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from contextlib import AbstractContextManager
 
 __all__ = (
     "JobRunner",
@@ -130,12 +132,22 @@ class JobRunner(ABC):
         """
 
     @classmethod
+    def _change_logging(cls) -> AbstractContextManager[None]:
+        """
+        Records the changes of a system job under the system user.
+        """
+        if cls.scheduled_task_key:
+            return system_change_logging()
+        return contextlib.nullcontext()
+
+    @classmethod
     def handle(cls, job: Job, *args: Any, **kwargs: Any) -> None:
         logger = logging.getLogger("peering.manager.jobs")
 
         try:
             job.start()
-            cls(job).run(*args, **kwargs)
+            with cls._change_logging():
+                cls(job).run(*args, **kwargs)
             job.terminate()
         except JobFailedError:
             logger.warning(f"Job {job} failed")

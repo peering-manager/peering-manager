@@ -768,7 +768,8 @@ class InternetExchange(AbstractGroup):
                     # Connections not belonging to the same IX
                     return None
 
-        if peeringdb_ixlan is not None:
+        if peeringdb_ixlan is not None and self.peeringdb_ixlan_id != peeringdb_ixlan.pk:
+            self.snapshot()
             self.peeringdb_ixlan = peeringdb_ixlan
             self.save()
             logger.debug(f"linked ixp {self} (pk: {self.pk}) to peeringdb")

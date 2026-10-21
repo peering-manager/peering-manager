@@ -13,7 +13,8 @@ from requests import Session
 from requests.exceptions import RequestException
 from rest_framework import status
 
-from core.constants import CENSORSHIP_STRING, CENSORSHIP_STRING_CHANGED
+from core.constants import CENSORSHIP_STRING, CENSORSHIP_STRING_CHANGED, SYSTEM_USER_NAME
+from core.context_managers import SystemRequest, change_logging
 from core.enums import ObjectChangeAction
 from peering.models import AutonomousSystem
 from peering_manager.models import ChangeLoggedModel
@@ -186,6 +187,23 @@ class WebhookTest(APITestCase):
         self.assertEqual(job.kwargs["snapshots"]["postchange"]["name"], "My AS")
         self.assertEqual(sorted(job.kwargs["snapshots"]["postchange"]["tags"]), ["Baz"])
 
+    def test_enqueue_webhook_update_without_user(self):
+        asn = AutonomousSystem.objects.create(asn=64500, name="AS 1")
+
+        # A system job changes the object outside of an HTTP request
+        with change_logging(SystemRequest()):
+            asn.snapshot()
+            asn.name = "My AS"
+            asn.save()
+
+        self.assertEqual(self.queue.count, 1)
+        job = self.queue.jobs[0]
+        self.assertEqual(job.kwargs["webhook"], Webhook.objects.get(type_update=True))
+        self.assertEqual(job.kwargs["event"], ObjectChangeAction.UPDATE)
+        self.assertEqual(job.kwargs["username"], SYSTEM_USER_NAME)
+        self.assertEqual(job.kwargs["snapshots"]["prechange"]["name"], "AS 1")
+        self.assertEqual(job.kwargs["snapshots"]["postchange"]["name"], "My AS")
+
     def test_enqueue_webhook_bulk_update(self):
         asns = (
             AutonomousSystem(asn=64500, name="AS 1"),
@@ -297,7 +315,7 @@ class WebhookTest(APITestCase):
         enqueue_object(
             webhooks_queue,
             instance=asn,
-            user=self.user,
+            username=self.user.username,
             request_id=request_id,
             action=ObjectChangeAction.CREATE,
         )
@@ -315,7 +333,7 @@ class WebhookTest(APITestCase):
         enqueue_object(
             webhooks_queue,
             instance=AutonomousSystem.objects.create(asn=64501, name="AS 2"),
-            user=self.user,
+            username=self.user.username,
             request_id=uuid.uuid4(),
             action=ObjectChangeAction.CREATE,
         )

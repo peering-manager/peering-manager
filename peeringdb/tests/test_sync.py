@@ -3,6 +3,8 @@ from unittest.mock import patch
 from django.test import TestCase
 from django.utils import timezone
 
+from core.context_managers import SystemRequest, change_logging
+from core.models import ObjectChange
 from utils.testing import MockedResponse
 
 from ..models import HiddenPeer, InternetExchange, IXLan, Network, NetworkIXLan, Organization
@@ -82,11 +84,16 @@ class HiddenPeerLinkTestCase(TestCase):
         self.assertEqual(hidden_peer.peeringdb_network_id_copy, self.network.pk)
         self.assertEqual(hidden_peer.peeringdb_ixlan_id_copy, self.ixlan.pk)
 
-        result = hidden_peer.link_to_peeringdb()
+        # The second pass finds the same records, so it must not save again
+        with change_logging(SystemRequest()):
+            self.assertTrue(hidden_peer.link_to_peeringdb())
+            self.assertTrue(hidden_peer.link_to_peeringdb())
 
-        self.assertTrue(result)
         self.assertEqual(hidden_peer.peeringdb_network, self.network)
         self.assertEqual(hidden_peer.peeringdb_ixlan, self.ixlan)
+        change = ObjectChange.objects.get()
+        self.assertIsNone(change.prechange_data["peeringdb_network"])
+        self.assertEqual(change.postchange_data["peeringdb_network"], self.network.pk)
 
     def test_hidden_peer_link_to_peeringdb_partial_failure(self):
         hidden_peer = HiddenPeer.objects.create(peeringdb_network=self.network, peeringdb_ixlan=self.ixlan)

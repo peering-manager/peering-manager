@@ -8,9 +8,10 @@ from django.db import transaction
 from django.test import TestCase
 from django.utils import timezone
 
+from core.constants import SYSTEM_USER_NAME
 from core.enums import JobStatus
 from core.exceptions import JobFailedError
-from core.models import Job
+from core.models import DataSource, Job, ObjectChange
 from core.tests.jobs_utils import MockedQueueTestCase
 from peering_manager.jobs import JobLogHandler, JobRunner, system_job
 from peering_manager.registry import SYSTEM_JOBS_KEY, registry
@@ -42,6 +43,21 @@ class _HandledFailureRunner(JobRunner):
 
     def run(self, *args, **kwargs):
         raise JobFailedError("handled failure")
+
+
+class _ChangingRunner(JobRunner):
+    class Meta:
+        name = "test.changing"
+
+    def run(self, *args, **kwargs):
+        data_source = DataSource.objects.get(name="Test")
+        data_source.snapshot()
+        data_source.enabled = not data_source.enabled
+        data_source.save()
+
+
+class _SystemChangingRunner(_ChangingRunner):
+    scheduled_task_key = "test-system-changing"
 
 
 def _make_pending_job(name="test.success", interval=5, scheduled=None):
@@ -105,6 +121,22 @@ class JobRunnerLifecycleTests(MockedQueueTestCase):
 
         job.refresh_from_db()
         self.assertEqual(job.status, JobStatus.FAILED)
+
+    def test_only_system_job_records_changes(self):
+        DataSource.objects.create(name="Test", type="local", source_url="/tmp")
+
+        # Recording the changes of a system job is opt-in
+        _SystemChangingRunner.handle(_make_pending_job(name="test.changing", interval=None))
+        self.assertFalse(ObjectChange.objects.exists())
+
+        with self.settings(CHANGELOG_SYSTEM_CHANGES=True):
+            _ChangingRunner.handle(_make_pending_job(name="test.changing", interval=None))
+            self.assertFalse(ObjectChange.objects.exists())
+
+            _SystemChangingRunner.handle(_make_pending_job(name="test.changing", interval=None))
+        change = ObjectChange.objects.get()
+        self.assertIsNone(change.user)
+        self.assertEqual(change.user_name, SYSTEM_USER_NAME)
 
     def test_no_reschedule_when_interval_unset(self):
         job = _make_pending_job(name="test.success", interval=None, scheduled=None)

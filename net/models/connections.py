@@ -139,8 +139,10 @@ class Connection(PrimaryModel):
             logger.debug(f"linking connection {self} (pk: {self.pk}) to peeringdb failed")
             return None
 
-        self.peeringdb_netixlan = netixlan
-        self.save()
+        if self.peeringdb_netixlan_id != netixlan.pk:
+            self.snapshot()
+            self.peeringdb_netixlan = netixlan
+            self.save()
 
         return netixlan
 

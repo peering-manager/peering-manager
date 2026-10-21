@@ -1,11 +1,16 @@
+import ipaddress
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from bgp.models import Relationship
+from core.context_managers import SystemRequest, change_logging
+from core.models import ObjectChange
 from devices.models import PasswordAlgorithm, Platform, Router
 from net.models import Connection
+from peeringdb.models import InternetExchange as PeeringDBIX
+from peeringdb.models import IXLan, Network, NetworkIXLan, Organization
 from utils.testing import load_json
 
 from ..enums import *
@@ -214,6 +219,34 @@ class InternetExchangeTest(TestCase):
             local_autonomous_system=cls.autonomous_system, name="Test", slug="test"
         )
         load_peeringdb_data()
+
+    def test_link_to_peeringdb_records_only_changes(self):
+        org = Organization.objects.create(id=1, name="Test Org")
+        ixlan = IXLan.objects.create(id=7, ix=PeeringDBIX.objects.create(id=7, name="Test IX", org=org))
+        netixlan = NetworkIXLan.objects.create(
+            asn=65537,
+            net=Network.objects.create(id=1, org=org, asn=65537, name="Test"),
+            ixlan=ixlan,
+            ipaddr4=ipaddress.ip_interface("192.0.2.1/32"),
+            speed=10000,
+        )
+        connection = Connection.objects.create(
+            internet_exchange_point=self.internet_exchange, ipv4_address="192.0.2.1/24"
+        )
+        connection.refresh_from_db()
+
+        # The second pass finds the same records, so it must not save again
+        with change_logging(SystemRequest()):
+            for _ in range(2):
+                self.assertEqual(connection.link_to_peeringdb(), netixlan)
+                self.assertEqual(self.internet_exchange.link_to_peeringdb(), ixlan)
+
+        changes = list(ObjectChange.objects.order_by("pk"))
+        self.assertEqual([c.changed_object for c in changes], [connection, self.internet_exchange])
+        self.assertIsNone(changes[0].prechange_data["peeringdb_netixlan"])
+        self.assertEqual(changes[0].postchange_data["peeringdb_netixlan"], netixlan.pk)
+        self.assertIsNone(changes[1].prechange_data["peeringdb_ixlan"])
+        self.assertEqual(changes[1].postchange_data["peeringdb_ixlan"], ixlan.pk)
 
 
 class InternetExchangePeeringSessionTest(TestCase):

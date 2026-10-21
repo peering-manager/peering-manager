@@ -1,7 +1,6 @@
 import logging
 
-from django.core.management.base import BaseCommand
-
+from core.management.base import SystemCommand
 from peering.models import AutonomousSystem
 
 from ...jobs import PeeringDBSynchronisationJob
@@ -11,7 +10,7 @@ from ...sync import PeeringDB
 VERBOSITY_TO_LOG_LEVEL = {1: logging.INFO, 2: logging.ERROR, 3: logging.DEBUG}
 
 
-class Command(BaseCommand):
+class Command(SystemCommand):
     help = "Cache PeeringDB data locally and update AS data."
 
     def add_arguments(self, parser):

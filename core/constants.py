@@ -7,10 +7,13 @@ __all__ = (
     "CENSORSHIP_STRING_CHANGED",
     "GIT_ERROR_MATCHES",
     "RQ_TASK_STATUSES",
+    "SYSTEM_USER_NAME",
 )
 
 CENSORSHIP_STRING = "*************"
 CENSORSHIP_STRING_CHANGED = "***CHANGED***"
+
+SYSTEM_USER_NAME = "system"
 
 
 @dataclass
