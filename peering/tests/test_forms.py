@@ -1,8 +1,9 @@
 from django.test import TestCase
 
-from bgp.models import Relationship
+from bgp.models import Relationship, RoutingPolicy
 from messaging.models import Email
 from net.models import Connection
+from peering_manager.enums import IPFamily
 
 from ..constants import *
 from ..enums import *
@@ -56,6 +57,18 @@ class DirectPeeringSessionTest(TestCase):
         )
         self.assertTrue(test.is_valid())
         self.assertTrue(test.save())
+
+        policy = RoutingPolicy.objects.create(name="IPv4", slug="ipv4", address_family=IPFamily.IPV4)
+        data = {
+            "local_autonomous_system": self.local_autonomous_system.pk,
+            "autonomous_system": self.autonomous_system.pk,
+            "relationship": self.relationship.pk,
+            "import_routing_policies": [policy.pk],
+        }
+        self.assertTrue(DirectPeeringSessionForm(data={**data, "ip_address": "192.0.2.1"}).is_valid())
+        test = DirectPeeringSessionForm(data={**data, "ip_address": "2001:db8::2"})
+        self.assertFalse(test.is_valid())
+        self.assertIn("address families mismatch", str(test.errors))
 
 
 class InternetExchangeTest(TestCase):

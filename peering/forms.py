@@ -396,7 +396,7 @@ class DirectPeeringSessionForm(PeeringManagerModelForm):
         ip_dst: IPv6Interface | IPv4Interface = cleaned_data["ip_address"]
 
         # Make sure that routing policies are compatible (address family)
-        for policy in cleaned_data["import_routing_policies"].union(cleaned_data["export_routing_policies"]):
+        for policy in cleaned_data["import_routing_policies"] | cleaned_data["export_routing_policies"]:
             if policy.address_family not in (IPFamily.ALL, ip_dst.version):
                 raise ValidationError(
                     f"Routing policy '{policy.name}' cannot be used for this session, address families mismatch."
