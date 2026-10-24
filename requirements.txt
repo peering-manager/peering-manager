@@ -9,7 +9,7 @@ click==8.5.0
 croniter==6.2.4
 cryptography==50.0.2
 defusedxml==0.7.1
-django==6.1.1
+django==6.1.2
 django-debug-toolbar==7.1.1
 django-filter==26.1
 django-htmx==1.29.0

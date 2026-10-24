@@ -1,3 +1,30 @@
+## Version 1.11.1 | MARK I (Bug fixes release) | 2026-10-24
+
+> [!WARNING]
+> This release fixes a security issue, [GHSA-fr68-fxwv-f5q4](https://github.com/peering-manager/peering-manager/security/advisories/GHSA-fr68-fxwv-f5q4). A user with the permission to add or change export templates could run SQL queries on the database and get administrator rights.
+
+### Enhancements
+
+* Show a button that opens the PeeringDB page of an IXP, as the AS page does, instead of a check icon
+* Add net side and IX side columns, with the facilities that PeeringDB records for the peer, to the IXP peering session tables
+* Upgrade Django to 6.1.2, which fixes several security issues
+
+### Bug Fixes
+
+* Show the real counts of related objects in bulk edit and bulk delete confirmations and in search results, which reported 0 sessions, connections or routers whatever the objects held
+* Show the number of files of a data source in the data source list, which was always empty
+* Store every foreign key of PeeringDB objects during a synchronisation. Some of them, such as the IX side of a network IX LAN, were skipped
+* Store PeeringDB facilities that list "No Power" as an available voltage, which the synchronisation skipped with a validation error
+* [#978](https://github.com/peering-manager/peering-manager/issues/978) Record the changes of system jobs and of the `peeringdb_sync` command in the change log and the webhooks, with `system` as the author, when the new `CHANGELOG_SYSTEM_CHANGES` setting is enabled
+* [#979](https://github.com/peering-manager/peering-manager/issues/979) Include the AS values before the change in the change log and the update webhooks when a PeeringDB synchronisation changes an AS
+* [#980](https://github.com/peering-manager/peering-manager/issues/980) List each ASN once in the AS list of an AS whose AS-SETs overlap
+* [#981](https://github.com/peering-manager/peering-manager/issues/981) Keep the uncommitted changes of the session that holds the configuration lock when a configuration check or deploy runs
+* [#982](https://github.com/peering-manager/peering-manager/issues/982) Stop the RQ worker from quitting when the job exception handler receives an abandoned job
+* [#983](https://github.com/peering-manager/peering-manager/issues/983) Hide BGP session passwords, requested session secrets and NAPALM passwords in the change log, which stored them in clear text
+* [#987](https://github.com/peering-manager/peering-manager/issues/987) Accept or refuse a peering request from any of its tabs, the review button did nothing outside the main tab
+* [#989](https://github.com/peering-manager/peering-manager/issues/989) Do not propose sessions on disabled IXP connections in the peering portal
+* [#992](https://github.com/peering-manager/peering-manager/issues/992) Save a direct peering session that has import routing policies and no export routing policies, which failed with a server error
+
 ## Version 1.11.0 | MARK I (Features release) | 2026-09-02
 
 The 1.11.x releases require Python 3.12 or later as well as PostgreSQL 15 or later.

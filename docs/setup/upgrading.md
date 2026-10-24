@@ -31,13 +31,13 @@ Here is a list of what this script does to perform the upgrade:
 * Remove stale content types
 * Clear expired sessions
 
-## Restart the WSGI Service
+## Restart the WSGI and RQ Services
 
-The WSGI and RQ services need to be restart in order to run the new code.
+The WSGI and RQ services need to be restarted in order to run the new code.
 Assuming that you are using systemd like in the setup guide, you can use the
-following commands to restart both services:
+following commands to restart them:
 
 ```no-highlight
 # systemctl restart peering-manager
-# systemctl restart peering-manager-rqworker
+# systemctl restart 'peering-manager-rqworker@*'
 ```
