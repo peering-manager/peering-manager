@@ -21,6 +21,7 @@ from peering.functions import (
 )
 from peering_manager.api.authentication import IsAuthenticatedOrLoginNotRequired
 from peering_manager.api.viewsets import PeeringManagerModelViewSet
+from utils.functions import get_permission_for_model
 
 from ..filtersets import (
     ConfigContextAssignmentFilterSet,
@@ -109,6 +110,11 @@ class ExportTemplateViewSet(PeeringManagerModelViewSet):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         export_template = self.get_object()
+
+        model = export_template.content_type.model_class()
+        if model is None or not request.user.has_perm(get_permission_for_model(model, "view")):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         job = Job.enqueue(
             render_export_template,
             export_template,
@@ -144,7 +150,13 @@ class ExportTemplateViewSet(PeeringManagerModelViewSet):
         if not request.user.has_perm("extras.view_exporttemplate"):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        return Response(data={"rendered": self.get_object().render()})
+        export_template = self.get_object()
+
+        model = export_template.content_type.model_class()
+        if model is None or not request.user.has_perm(get_permission_for_model(model, "view")):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return Response(data={"rendered": export_template.render()})
 
 
 class IXAPIViewSet(PeeringManagerModelViewSet):

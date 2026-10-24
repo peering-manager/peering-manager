@@ -22,7 +22,45 @@ from peering.models import (
     InternetExchangePeeringSession,
 )
 from peering_manager.enums import IPFamily
-from peering_manager.jinja2 import FILTER_DICT
+from peering_manager.jinja2 import FILTER_DICT, render_jinja2
+
+
+class Jinja2SandboxTestCase(TestCase):
+    """
+    Ensure that the Jinja2 environment does not expose harmful components.
+    """
+
+    def render(self, template):
+        return render_jinja2(template, {"dataset": AutonomousSystem.objects.all()})
+
+    def test_database_access_is_blocked(self):
+        for template in (
+            "{{ dataset.query.get_compiler(using='default').connection.cursor() }}",
+            "{{ dataset.model.objects.raw('SELECT 1') }}",
+            "{{ dataset.extra(where=['1=1']) }}",
+        ):
+            with self.subTest(template=template):
+                self.assertIn("SecurityError", self.render(template))
+
+    def test_queryset_and_relations_still_work(self):
+        a_s = AutonomousSystem.objects.create(asn=64510, name="Test")
+        a_s.tags.add(Tag.objects.create(name="Tag 1", slug="tag-1"))
+        self.assertEqual("1", self.render("{{ dataset.count() }}").strip())
+        self.assertEqual("tag-1", self.render("{{ dataset.first().tags.first().slug }}").strip())
+
+    def test_filters_cannot_reach_database_access(self):
+        for template in (
+            "{{ [dataset] | iterate('query') | list }}",
+            "{{ [dataset] | filter(query=1) | list }}",
+            "{{ [dataset] | iterate('__dict__') | list }}",
+            "{{ [dataset] | iterate('__class__') | list }}",
+        ):
+            with self.subTest(template=template):
+                self.assertIn("SecurityError", self.render(template))
+
+    def test_filters_read_normal_attributes(self):
+        AutonomousSystem.objects.create(asn=64510, name="Test")
+        self.assertIn("64510", self.render("{{ dataset | iterate('asn') | list }}"))
 
 
 class Jinja2FilterTestCase(TestCase):

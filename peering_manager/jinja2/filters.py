@@ -30,6 +30,8 @@ from peeringdb.functions import get_possible_peering_sessions, get_shared_facili
 from peeringdb.models import Network
 from utils.functions import get_key_in_hash, serialize_object
 
+from .sandbox import safe_getattr
+
 __all__ = ("FILTER_DICT",)
 
 
@@ -194,7 +196,7 @@ def filter(value, **kwargs):
         valid = True
         for k, v in kwargs.items():
             try:
-                valid = getattr(i, k) == v
+                valid = safe_getattr(i, k) == v
             except AttributeError:
                 valid = False
 
@@ -238,7 +240,7 @@ def unique_items(value, field):
     # Fail validation of an item if it does not have the attribute
     for i in value:
         try:
-            value = getattr(i, field)
+            value = safe_getattr(i, field)
             if value not in seen_values:
                 seen_values.append(value)
                 unique_items.append(i)
@@ -255,7 +257,7 @@ def iterate(value, field):
     If the item does not have the field, it will simply yield a null value.
     """
     for item in value:
-        yield getattr(item, field, None)
+        yield safe_getattr(item, field, None)
 
 
 def iter_export_policies(value, field="", family=-1):
@@ -277,7 +279,7 @@ def iter_export_policies(value, field="", family=-1):
         policies = filter(policies, address_family__in=[0, family])
 
     if field:
-        return [getattr(p, field) for p in policies]
+        return [safe_getattr(p, field) for p in policies]
 
     return list(policies)
 
@@ -301,7 +303,7 @@ def iter_import_policies(value, field="", family=-1):
         policies = filter(policies, address_family__in=[0, family])
 
     if field:
-        return [getattr(p, field) for p in policies]
+        return [safe_getattr(p, field) for p in policies]
 
     return list(policies)
 
@@ -325,7 +327,7 @@ def routing_policies(value, field="", family=-1):
         policies = filter(policies, address_family__in=[0, family])
 
     if field:
-        return [getattr(p, field) for p in policies]
+        return [safe_getattr(p, field) for p in policies]
 
     return list(policies)
 
@@ -361,7 +363,7 @@ def communities(value, field="", direction=""):
         raise ValueError(f"unknown community direction: {direction}")
 
     if field:
-        return [getattr(i, field) for i in items]
+        return [safe_getattr(i, field) for i in items]
 
     return items
 
@@ -393,7 +395,7 @@ def contact(value, role, field=""):
         if assignement:
             if not field:
                 return assignement.contact
-            return getattr(assignement.contact, field)
+            return safe_getattr(assignement.contact, field)
 
     return None
 

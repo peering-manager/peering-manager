@@ -1,20 +1,22 @@
+from __future__ import annotations
+
+import traceback
+
+from django.conf import settings
+from jinja2 import TemplateSyntaxError
+
 from .extensions import *
 from .filters import *
 from .functions import *
 from .loaders import *
+from .sandbox import RestrictedEnvironment
 
 
 def render_jinja2(template, context, trim=False, lstrip=False):
     """
     Render the template using Jinja2.
     """
-    import traceback
-
-    from django.conf import settings
-    from jinja2 import TemplateSyntaxError
-    from jinja2.sandbox import SandboxedEnvironment
-
-    environment = SandboxedEnvironment(loader=PeeringManagerLoader(), trim_blocks=trim, lstrip_blocks=lstrip)
+    environment = RestrictedEnvironment(loader=PeeringManagerLoader(), trim_blocks=trim, lstrip_blocks=lstrip)
     environment.add_extension(IncludeTemplateExtension)
     for extension in settings.JINJA2_TEMPLATE_EXTENSIONS:
         environment.add_extension(extension)
