@@ -92,6 +92,15 @@ MAX_PAGE_SIZE = getattr(configuration, "MAX_PAGE_SIZE", 1000)
 DEFAULT_USER_PREFERENCES = getattr(configuration, "DEFAULT_USER_PREFERENCES", {})
 METRICS_ENABLED = getattr(configuration, "METRICS_ENABLED", False)
 
+# Drop log records during tests
+if "test" in sys.argv:
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {"null": {"class": "logging.NullHandler"}},
+        "root": {"handlers": ["null"]},
+    }
+
 SESSION_FILE_PATH = getattr(configuration, "SESSION_FILE_PATH", None)
 SESSION_COOKIE_NAME = getattr(configuration, "SESSION_COOKIE_NAME", "sessionid")
 SESSION_COOKIE_SECURE = getattr(configuration, "SESSION_COOKIE_SECURE", False)
