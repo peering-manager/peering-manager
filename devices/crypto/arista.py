@@ -207,7 +207,7 @@ class AristaType7Cipher(PasswordCipher):
         key_bytes = bytes(f"{key}_passwd", encoding="UTF-8")
         hashed_key = _hashkey(key_bytes)
 
-        cipher = Cipher(TripleDES(hashed_key), modes.CBC(bytes(8)), default_backend())
+        cipher = Cipher(TripleDES(hashed_key * 3), modes.CBC(bytes(8)), default_backend())
         decryptor = cipher.decryptor()
         result = decryptor.update(data)
         decryptor.finalize()
@@ -240,7 +240,7 @@ class AristaType7Cipher(PasswordCipher):
         padding = (8 - ((len(data) + 4) % 8)) % 8
         ciphertext = ENC_SIG + bytes([padding * 16 + 0xE]) + data + bytes(padding)
 
-        cipher = Cipher(TripleDES(hashed_key), modes.CBC(bytes(8)), default_backend())
+        cipher = Cipher(TripleDES(hashed_key * 3), modes.CBC(bytes(8)), default_backend())
         encryptor = cipher.encryptor()
         result = encryptor.update(ciphertext)
         encryptor.finalize()

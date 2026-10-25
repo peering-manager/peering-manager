@@ -1,6 +1,6 @@
 from django.contrib.auth.models import Permission, User
 from django.db import connection as db_connection
-from django.test import SimpleTestCase
+from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from drf_spectacular.generators import SchemaGenerator
@@ -610,7 +610,7 @@ class PortalStatusAndCancelTest(PortalAPITestMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
 
-class PortalSchemaTest(SimpleTestCase):
+class PortalSchemaTest(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
