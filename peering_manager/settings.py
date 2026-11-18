@@ -428,7 +428,15 @@ MAILERS = {
         },
     }
 }
-EMAIL_CC_CONTACTS = EMAIL.get("CC_CONTACTS", [])
+# Normalise CC contacts to (address, name) tuples so that they can be used as form choices
+# as they are. Plain addresses and lists (e.g. parsed from JSON) are accepted too.
+EMAIL_CC_CONTACTS = []
+for _contact in EMAIL.get("CC_CONTACTS", []):
+    if isinstance(_contact, str):
+        EMAIL_CC_CONTACTS.append((_contact, _contact))
+    else:
+        _address, *_name = _contact
+        EMAIL_CC_CONTACTS.append((_address, _name[0] if _name else _address))
 if EMAIL:
     SERVER_EMAIL = EMAIL.get("FROM_ADDRESS")
     EMAIL_SUBJECT_PREFIX = EMAIL.get("SUBJECT_PREFIX")
