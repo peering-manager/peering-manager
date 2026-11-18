@@ -516,20 +516,11 @@ class AutonomousSystem(PrimaryModel, PolicyMixin, JournalingMixin):
         """
         Returns a list of user defined CC contacts from settings
         """
-        addresses = []
-
-        # Extract user defined addresses
-        for email in settings.EMAIL_CC_CONTACTS:
-            if isinstance(email, tuple):
-                addresses.append(
-                    (
-                        email[0],
-                        f"{email[1]} - {email[0]}" if len(email) > 1 else email[0],
-                    )
-                )
-            else:
-                addresses.append((email, email))
-        return addresses
+        # Contacts are normalised to (address, name) tuples in settings
+        return [
+            (address, address if name == address else f"{name} - {address}")
+            for address, name in settings.EMAIL_CC_CONTACTS
+        ]
 
     def get_email_context(self):
         """
