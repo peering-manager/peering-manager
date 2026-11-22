@@ -9,9 +9,11 @@
         <strong>Router Details</strong>
         {% if instance.is_usable_for_task %}
         <div class="float-end">
+          {% if perms.devices.view_router %}
           <button type="button" class="btn btn-xs btn-primary" id="id_router_ping" title="Check if the router is usable.">
             <i class="fa fa-plug"></i> Ping
           </button>
+          {% endif %}
           {% if perms.peering.change_directpeeringsession and perms.peering.change_internetexchangepeeringsession and instance.poll_bgp_sessions_state %}
           <button type="button" class="btn btn-xs btn-success" id="id_poll_sessions_state" title="Poll BGP sessions state on this router.">
             <i class="fa-fw fa-solid fa-rotate"></i> Poll Sessions
@@ -145,7 +147,7 @@
     $(this).closest('.alert').slideUp();
   });
 
-  {% if instance.is_usable_for_task %}
+  {% if instance.is_usable_for_task and perms.devices.view_router %}
   var pingCallbacks = {
     onCompleted: function () {
       $('#id_message_success').html('Successfully connected to the router.');

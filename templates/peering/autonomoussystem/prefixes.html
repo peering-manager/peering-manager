@@ -93,12 +93,12 @@
         </form>
       </div>
     </div>
-    {% if total_count or irr_commands %}
+    {% if total_count and perms.peering.view_autonomoussystem or irr_commands %}
     <div class="card mt-3">
       <div class="card-header"><strong>Actions</strong></div>
       <div class="card-body">
         <div class="d-grid gap-2">
-          {% if total_count > 0 %}
+          {% if total_count > 0 and perms.peering.view_autonomoussystem %}
           <div data-bs-toggle="tooltip" data-bs-placement="left" title="Download the prefix list in JSON format">
             <a href="{% url 'peering-api:autonomoussystem-as-set-prefixes' pk=instance.pk %}?format=json" class="btn btn-sm btn-outline-primary w-100" target="_blank">
               <i class="fa-fw fa-solid fa-download"></i> Export JSON
