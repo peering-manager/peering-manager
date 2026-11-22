@@ -43,7 +43,7 @@ class APIViewTestCases:
             GET a single object as an unauthenticated user.
             """
             url = self._get_detail_url(self._get_queryset().first())
-            response = self.client.get(url, **self.header)
+            response = self.client.get(url)
             self.assertHttpStatus(response, status.HTTP_200_OK)
 
         @override_settings(LOGIN_REQUIRED=True)
@@ -58,12 +58,19 @@ class APIViewTestCases:
                 f"Test requires the creation of at least one {self.model} instance",
             )
             instance = self._get_queryset()[0]
+            url = self._get_detail_url(instance)
+
+            # Try GET without the view permission
+            self.user.is_superuser = False
+            self.user.save()
+            self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_403_FORBIDDEN)
+            self.assertHttpStatus(self.client.get(self._get_list_url(), **self.header), status.HTTP_403_FORBIDDEN)
 
             self.add_permissions("view")
 
             # Try GET to permitted object
-            url = self._get_detail_url(instance)
             self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_200_OK)
+            self.assertHttpStatus(self.client.get(self._get_list_url(), **self.header), status.HTTP_200_OK)
 
         @override_settings(LOGIN_REQUIRED=True)
         def test_get_object_fields(self):

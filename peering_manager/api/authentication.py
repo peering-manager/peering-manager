@@ -86,9 +86,19 @@ class TokenAuthentication(authentication.TokenAuthentication):
 
 class TokenPermissions(DjangoModelPermissions):
     """
-    Permissions handler extending DjangoModelPermissions to validate Tokens write
-    ability for unsafe requests (POST/PUT/PATCH/DELETE).
+    Permissions handler extending `DjangoModelPermissions` to validate Tokens write ability for unsafe requests
+    (POST/PUT/PATCH/DELETE) and to require the view permission for safe requests, as the web UI does.
     """
+
+    perms_map = {
+        "GET": ["%(app_label)s.view_%(model_name)s"],
+        "OPTIONS": [],
+        "HEAD": ["%(app_label)s.view_%(model_name)s"],
+        "POST": ["%(app_label)s.add_%(model_name)s"],
+        "PUT": ["%(app_label)s.change_%(model_name)s"],
+        "PATCH": ["%(app_label)s.change_%(model_name)s"],
+        "DELETE": ["%(app_label)s.delete_%(model_name)s"],
+    }
 
     def __init__(self):
         # If LOGIN_REQUIRED, don't allow non-authenticated users
@@ -96,20 +106,24 @@ class TokenPermissions(DjangoModelPermissions):
         super().__init__()
 
     def has_permission(self, request, view):
-        # If token authentication is in use, verify that the token allows write
-        # operations (for unsafe methods).
-        if request.method not in SAFE_METHODS and isinstance(request.auth, Token) and not request.auth.write_enabled:
+        if request.method in SAFE_METHODS:
+            # Only allow well known GET actions for anonymous if anonymous access is enabled
+            if not self.authenticated_users_only and getattr(view, "action", None) in {"list", "retrieve"}:
+                return True
+            return super().has_permission(request, view)
+
+        # If token authentication is in use, verify that the token allows write operations (for unsafe methods)
+        if isinstance(request.auth, Token) and not request.auth.write_enabled:
             return False
-        # If action is not part of default CRUD, allow it
-        # Restriction must be performed in the view itself
-        if hasattr(view, "action") and view.action not in [
+        # If action is not part of default CRUD, allow it, restriction must be performed in the view itself
+        if hasattr(view, "action") and view.action not in {
             "list",
             "retrieve",
             "create",
             "update",
             "partial_update",
             "destroy",
-        ]:
+        }:
             return True
         return super().has_permission(request, view)
 
