@@ -194,6 +194,10 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
         operation_id="peering_autonomous_systems_render_email",
         responses={
             200: OpenApiResponse(response=OpenApiTypes.OBJECT, description="Renders the e-mail template."),
+            403: OpenApiResponse(
+                response=OpenApiTypes.NONE,
+                description="The user does not have the permission to send e-mails.",
+            ),
             404: OpenApiResponse(
                 response=OpenApiTypes.NONE,
                 description="The AS or e-mail template does not exist.",
@@ -202,6 +206,10 @@ class AutonomousSystemViewSet(PeeringManagerModelViewSet):
     )
     @action(detail=True, methods=["post"], url_path="generate-email")
     def generate_email(self, request, pk=None):
+        # Check user permission first
+        if not request.user.has_perm("peering.send_email"):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         # Make sure request is valid
         serializer = EmailSendingSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
