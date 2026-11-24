@@ -123,6 +123,9 @@ class TokenPermissions(DjangoModelPermissions):
             "update",
             "partial_update",
             "destroy",
+            "bulk_update",
+            "bulk_partial_update",
+            "bulk_destroy",
         }:
             return True
         return super().has_permission(request, view)
