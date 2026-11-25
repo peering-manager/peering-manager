@@ -277,14 +277,16 @@ class TokenList(LoginRequiredMixin, View):
 
 
 class TokenAddEdit(LoginRequiredMixin, View):
+    def dispatch(self, request, *args, **kwargs):
+        permission = "users.add_token" if kwargs.get("pk") is None else "users.change_token"
+        if request.user.is_authenticated and not request.user.has_perm(permission):
+            return HttpResponseForbidden()
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request, pk=None):
         if pk is not None:
-            if not request.user.has_perm("users.change_token"):
-                return HttpResponseForbidden()
             token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
         else:
-            if not request.user.has_perm("users.add_token"):
-                return HttpResponseForbidden()
             token = Token(user=request.user)
 
         form = TokenForm(instance=token)
