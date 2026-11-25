@@ -201,6 +201,13 @@ class APIViewTestCases:
             self.assertEqual(len(id_list), 3, "Not enough objects to test bulk update")
             data = [{"id": id, **self.bulk_update_data} for id in id_list]
 
+            # Try PATCH without the change permission
+            self.user.is_superuser = False
+            self.user.save()
+            response = self.client.patch(self._get_list_url(), data, format="json", **self.header)
+            self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
+            self.add_permissions("change")
             response = self.client.patch(self._get_list_url(), data, format="json", **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
 
@@ -236,6 +243,15 @@ class APIViewTestCases:
             data = [{"id": id} for id in id_list]
 
             initial_count = self._get_queryset().count()
+
+            # Try DELETE without the delete permission
+            self.user.is_superuser = False
+            self.user.save()
+            response = self.client.delete(self._get_list_url(), data, format="json", **self.header)
+            self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+            self.assertEqual(self._get_queryset().count(), initial_count)
+
+            self.add_permissions("delete")
             response = self.client.delete(self._get_list_url(), data, format="json", **self.header)
             self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
             self.assertEqual(self._get_queryset().count(), initial_count - 3)

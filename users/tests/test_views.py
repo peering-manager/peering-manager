@@ -116,6 +116,12 @@ class UserTestCase(ViewTestCase):
         response = self.client.get(reverse("users:token_add"))
         self.assertEqual(response.status_code, 200)
 
+        # A user without the add permission cannot create a token
+        self.client.force_login(User.objects.create_user(username="restricted"))
+        for method in (self.client.get, self.client.post):
+            self.assertEqual(403, method(reverse("users:token_add"), {"write_enabled": True}).status_code)
+        self.assertFalse(Token.objects.filter(user__username="restricted").exists())
+
     def test_user_token_edit_view(self):
         response = self.client.get(reverse("users:token_edit", kwargs={"pk": self.token.pk}))
         # Without been logged -> redirection
@@ -127,6 +133,16 @@ class UserTestCase(ViewTestCase):
         self.assertTrue(response.context["user"].is_active)
         response = self.client.get(reverse("users:token_edit", kwargs={"pk": self.token.pk}))
         self.assertEqual(response.status_code, 200)
+
+        # A user without the change permission cannot make their read-only token writable
+        restricted = User.objects.create_user(username="restricted")
+        token = Token.objects.create(user=restricted, write_enabled=False)
+        self.client.force_login(restricted)
+        url = reverse("users:token_edit", kwargs={"pk": token.pk})
+        for method in (self.client.get, self.client.post):
+            self.assertEqual(403, method(url, {"write_enabled": True}).status_code)
+        token.refresh_from_db()
+        self.assertFalse(token.write_enabled)
 
     def test_user_token_delete_view(self):
         response = self.client.get(reverse("users:token_delete", kwargs={"pk": self.token.pk}))
