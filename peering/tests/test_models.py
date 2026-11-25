@@ -2,7 +2,7 @@ import ipaddress
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from bgp.models import Relationship
 from core.context_managers import SystemRequest, change_logging
@@ -111,6 +111,13 @@ class AutonomousSystemTest(TestCase):
         self.assertEqual(
             f"AS{self.autonomous_system.asn} - {self.autonomous_system.name}",
             str(self.autonomous_system),
+        )
+
+    @override_settings(EMAIL_CC_CONTACTS=[("noc@example.com", "NOC"), ("plain@example.com", "plain@example.com")])
+    def test_get_cc_email_contacts(self):
+        self.assertListEqual(
+            [("noc@example.com", "NOC - noc@example.com"), ("plain@example.com", "plain@example.com")],
+            self.autonomous_system.get_cc_email_contacts(),
         )
 
 

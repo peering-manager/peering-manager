@@ -33,7 +33,8 @@ following items can be defined within the `EMAIL` configuration parameter:
 * `FROM_ADDRESS` - Sender address for emails sent by Peering Manager
 * `CC_CONTACTS` - Carbon copy contacts when sending emails. This should be a
   list of (email, name) tuples like:
-  `[("noc@example.com", "NOC"), ("netops@example.com", "NetOps Team")]`
+  `[("noc@example.com", "NOC"), ("netops@example.com", "NetOps Team")]`.
+  Plain email addresses, such as `"noc@example.com"`, are accepted as well.
 
 !!! note
     The `USE_SSL` and `USE_TLS` parameters are mutually exclusive.
